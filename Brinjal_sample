@@ -1,0 +1,329 @@
+package com.example.marudhambrinjal
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.animation.expandVertically
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.focus.focusModifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.marudhambrinjal.repo.Field
+import com.example.marudhambrinjal.repo.Fields
+import com.example.marudhambrinjal.ui.theme.*
+import com.google.accompanist.flowlayout.FlowRow
+
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            MarudhamBrinjalTheme {
+                Scaffold(
+                    topBar = {AppTopBar()}
+                ) {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(MarudhamBackground)
+                            .padding(10.dp),
+                        color = MaterialTheme.colors.background
+                    ) {
+                        AppScreen()
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun AppTopBar() {
+        CenterAlignedTopAppBar(
+            colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                containerColor = MarudhamBackground
+        ),
+            modifier = Modifier.background(MarudhamBackground),
+            title = { Text("Brinjal",
+                        style = MaterialTheme.typography.h2,
+                        color = MarudhamBlack)},
+            navigationIcon = {
+                IconButton(onClick = { /* doSomething() */ }) {
+                    Icon(
+                        imageVector = Icons.Filled.ArrowBack,
+                        contentDescription = "Localized description"
+                    )
+                }
+            }
+        )
+    }
+
+@Composable
+fun AppScreen() {
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MarudhamBackground)
+    ) {
+        FieldFlowLayer(fieldList = Fields.fieldList)
+    }
+}
+
+@Composable
+fun FieldFlowLayer(fieldList: List<Field>) {
+
+    InfoGreyText("Fields",)
+
+    FlowRow {
+        fieldList.forEach { t -> FieldClickable(fieldName = t.fieldName) }
+    }
+
+    Spacer(modifier = Modifier.height(10.dp))
+    Divider(
+        color = MarudhamGreen,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(0.5.dp)
+    )
+    Spacer(modifier = Modifier.height(20.dp))
+
+    FourCards()
+}
+
+@Composable
+fun FieldClickable(fieldName: String) {
+    Box(
+        modifier = Modifier
+            .padding(end = 9.dp, top = 9.dp)
+            .clip(RoundedCornerShape(5.dp))
+            .background(Color.White)
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                letterSpacing = 0.25.sp,
+                lineHeight = 16.sp,
+                color = MarudhamGreen,
+                textAlign = TextAlign.Center,
+                text = fieldName,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.body1)
+        }
+    }
+}
+
+@Composable
+fun InfoGreyText(info: String) {
+    Box(
+        modifier = Modifier.padding(start = 5.dp)
+    ) {
+        Text(
+            text = info,
+            letterSpacing = 0.5.sp,
+            style = MaterialTheme.typography.h5,
+            color = MarudhamGrey,
+            fontSize = 18.sp,
+            modifier = Modifier.background(Color.Transparent)
+        )
+    }
+}
+
+@Composable
+fun FourCards() {
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(2),
+        modifier = Modifier
+            .background(MarudhamBackground),
+          //  .padding(10.dp, bottom = 25.dp),
+        content = {
+            item {
+                //AppCardExpenses()
+                CropActionCard(
+                    title = "Expenses",
+                    icon = painterResource(R.drawable.ic_expense_icon),
+                    summary = { IncomeOrExpensesSummary(amount = 899L, isIncome = false) }
+                )
+            }
+            item {
+                //AppCardLogs()
+                CropActionCard(
+                    title = "Logs",
+                    icon = painterResource(R.drawable.ic_log_icon),
+                    summary = { LogOrTaskSummary(primaryValue = 24,isTask = false) }
+                )
+
+            }
+            item {
+                CropActionCard(
+                    title = "Income",
+                    icon = painterResource(R.drawable.ic_income_icon),
+                    summary = { IncomeOrExpensesSummary(amount = 899L, isIncome = true) }
+                )
+            }
+            item {
+                //AppCardTask()
+                CropActionCard(
+                    title = "Tasks",
+                    icon = painterResource(R.drawable.ic_task_icon),
+                    summary = { LogOrTaskSummary(primaryValue = 15, secondayValue = 24,isTask = true) }
+                )
+            }
+            item {
+                Spacer(modifier = Modifier.padding(5.dp))
+            }
+        })
+}
+
+
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    MarudhamBrinjalTheme {
+        //AppTopBar()
+        //FieldClickable(fieldName = "Northern field")
+        //InfoGreyText("Fields")
+        //AppCard()
+    }
+}
+
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun CropActionCard(
+    title: String,
+    onClick: () -> Unit = {},
+    icon: Painter,
+    summary: @Composable() () -> Unit,
+) {
+    Card(
+        shape = RoundedCornerShape(15.dp),
+        elevation = 10.dp,
+        onClick = { onClick.invoke() },
+        modifier = Modifier
+            .padding(10.dp)
+    ) {
+        Column(
+            modifier = Modifier.padding(25.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.Start
+        ) {
+            Image(
+                painter = icon,
+                contentDescription = ""
+            )
+
+            Text(
+                text = title,
+                style = MaterialTheme.typography.h4,
+                color = Color.Black,
+                letterSpacing = 0.5.sp,
+                fontWeight = FontWeight.Bold ,
+                modifier = Modifier.padding(top = 36.dp, bottom = 5.dp)
+            )
+            summary.invoke()
+        }
+    }
+}
+
+@Composable
+fun IncomeOrExpensesSummary(amount: Long, isIncome: Boolean) {
+
+    val color = if (!isIncome) MarudhamRed else MarudhamGreen
+
+    Text(
+        buildAnnotatedString {
+            withStyle(
+                style = SpanStyle(
+                    color = color,
+                    fontWeight = FontWeight.Bold
+                )
+            ) {
+                append("₹ ")
+            }
+            append(amount.toString())
+        },
+        fontSize = 24.sp,
+        fontWeight = FontWeight.Bold
+    )
+}
+
+@Composable
+fun LogOrTaskSummary(
+    primaryValue: Int,
+    secondayValue:Int = 0,
+    isTask:Boolean) {
+
+    Row(horizontalArrangement = Arrangement.Start,
+        modifier = Modifier.padding(0.dp)
+    ){
+
+        Text( text= primaryValue.toString(),
+            fontSize = 24.sp,
+            style = MaterialTheme.typography.h3,
+            fontWeight = FontWeight.Bold)
+        if(isTask)
+        {
+            Spacer(modifier = Modifier.width(15.dp))
+            Divider(
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .heightIn(min = 25.dp)
+                    .width(1.dp)
+                    .background(Color.Gray)
+            )
+            Text(text = secondayValue.toString(),
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.Gray,
+                modifier = Modifier
+                    .width(IntrinsicSize.Min)
+                    .padding(start = 15.dp),
+                style = TextStyle(textDecoration = TextDecoration.LineThrough),
+                fontFamily = MaterialTheme.typography.h3.fontFamily
+            )
+        }
+    }
+}
+
